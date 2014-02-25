@@ -1,0 +1,36 @@
+body {
+	background-color: black;
+	color: white;
+	font-family: 'Pokemon'
+}
+
+#rightPanel {
+	float: right;
+	position: absolute;
+	left: 820px;
+	top: 0;
+	right: 0;
+}
+
+#rightPanel h1 {
+	text-align: center;
+}
+
+#rightPanel ul {
+	list-style-type: none;
+	padding: 10px;
+	font-size: 20px;
+}
+
+#rightPanel ul li {
+	margin-bottom: 10px;
+}
+
+.name {
+	font-weight: bold;
+	color: rgb(0,255,0);
+}
+
+.input {
+	float: right;
+}

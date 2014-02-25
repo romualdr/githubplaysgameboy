@@ -1,0 +1,7 @@
+{
+	"title": "Britania plays GameBoy",
+	"port": 3000,
+	"url": "http://127.0.0.1",
+	"allowed_inputs": ["start", "select", "left", "right", "up", "down", "a", "b"],
+	"rom": "rom.gb"
+}

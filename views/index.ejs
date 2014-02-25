@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="css/mobile.css"/>
+    <title><%= title %></title>
+  </head>
+  <body>
+    <!--reference: http://upload.wikimedia.org/wikipedia/commons/9/93/Game_boy_pocket.png-->
+    <h1 id="title"></h1>
+    <div id="gamePad">
+      <TABLE style="float: right; width: 170px;">
+        <TR ALIGN="right" VALIGN="center"> 
+           <TD><button id="a_button">A</button></TD>
+        </TR>
+        <TR ALIGN="left" VALIGN="center"> 
+           <TD><button id="b_button">B</button> </TD>
+        </TR>
+      </TABLE>
+      <TABLE BORDER="0" style="float: left; width: 170px;">
+        <TR ALIGN="center" VALIGN="center"> 
+           <TD colspan="3"><button id="arrow_up">&uarr;</button></TD>
+        </TR> 
+        <TR ALIGN="center" VALIGN="center"> 
+           <TD><button id="arrow_left">&larr;</button></TD>
+           <TD></TD>
+           <TD><button id="arrow_right">&rarr;</button></TD>
+        </TR>
+        <TR ALIGN="center" VALIGN="center"> 
+           <TD colspan="3"> <button id="arrow_down">&darr;</button> </TD>
+        </TR>
+      </TABLE>
+      <div style="overflow:hidden; padding-top: 50px;">
+      <TABLE width="100%">
+        <TR ALIGN="center" VALIGN="center"> 
+        </TR> 
+        <TR VALIGN="center" ALIGN="CENTER">
+           <TD><button id="start_button">START</button> </TD>
+           <TD><button id="select_button">SELECT</button> </TD>
+        </TR>
+      </TABLE>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var keyZones = [
+        ["right", 39],
+        ["left", 37],
+        ["up", 38],
+        ["down", 40],
+        ["a", 65],
+        ["b", 90],
+        ["select", 16],
+        ["start", 13]
+      ];
+      var socket = io.connect('<%= url %>');
+      var username = null;
+
+      function toggleError(msg) {
+        if (document.body.className.indexOf('error') === -1)
+          document.body.className += 'error';
+        var h1 = document.getElementById('title');
+        h1.innerHTML = msg + ". Merci de recharger la page.";
+      }
+
+      socket.on('io:askusername', function () {
+        username = prompt('Choisissez un pseudo');
+        if (!username || !username.trim().length) {
+          return toggleError('Aucun nom');
+        }
+        return socket.emit('io:username', {name: username});
+      });
+
+      socket.on('disconnect', function () {
+        return toggleError('Serveur déconnecté');
+      })
+
+      socket.on('io:launchPlay', function (data) {
+        var h1 = document.getElementById('title');
+        h1.innerHTML = data.name;
+        document.getElementById("arrow_up").onclick = function() {
+          socket.emit('keypress', {key: "up"});
+        };
+        document.getElementById("arrow_left").onclick = function() {
+          socket.emit('keypress', {key: "left"});
+        };
+        document.getElementById("arrow_right").onclick = function() {
+          socket.emit('keypress', {key: "right"});
+        };
+        document.getElementById("arrow_down").onclick = function() {
+          socket.emit('keypress', {key: "down"});
+        };
+        document.getElementById("a_button").onclick = function() {
+          socket.emit('keypress', {key: "a"});
+        };
+        document.getElementById("b_button").onclick = function() {
+          socket.emit('keypress', {key: "b"});
+        };
+        document.getElementById("select_button").onclick = function() {
+          socket.emit('keypress', {key: "select"});
+        };
+        document.getElementById("start_button").onclick = function() {
+          socket.emit('keypress', {key: "start"});
+        };
+        document.addEventListener("keydown", keyDownTextField, false);
+
+        function keyDownTextField(e) {
+          var keyCode = e.keyCode;
+          for (var index = 0; index < keyZones.length; ++index) {
+            if (keyCode === keyZones[index][1])
+              socket.emit('keypress', {key: keyZones[index][0]});
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

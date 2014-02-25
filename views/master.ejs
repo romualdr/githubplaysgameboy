@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+    <head>
+    	<script src="/socket.io/socket.io.js"></script>
+    	<link rel="stylesheet" type="text/css" href="/css/pokemon_font.css"/>
+    	<link rel="stylesheet" type="text/css" href="/css/master.css"/>
+		<script>
+		var inFullscreen = false;
+		var mainCanvas = null;
+		var fullscreenCanvas = null;
+		var showAsMinimal = false;
+		var keyZones = [
+			["right", [39]],
+			["left", [37]],
+			["up", [38]],
+			["down", [40]],
+			["a", [88, 74]],
+			["b", [90, 81, 89]],
+			["select", [16]],
+			["start", [13]]
+		];
+		var cout = console.log.bind(console);
+		var game_loaded = false;
+		var reconnect = null;
+		var socket = io.connect('<%= url %>');
+		var _already = false;
+		var stack = [];
+		var list = null;
+
+		  window.onload = function () {
+		  		list = document.getElementById('inputStack');
+		  		mainCanvas = document.getElementById("mainCanvas");
+				socket.emit('master:ready', {});
+			}
+			// Load game
+		  socket.on('master:loadgame', function (data) {
+		  	if (!game_loaded)
+		    	start(mainCanvas, base64_decode(data.file));
+		    game_loaded = true;
+		  });
+		  socket.on('master:push', function (data) {
+		  	addToStack(data);
+		  	if (stack.length === 1 && !_already)
+		  		pushKey(removeTopStack());
+		  });
+		  socket.on('disconnect', function () {
+		  	console.log('Disconnected!');
+		  	reconnect = setInterval(function () {
+		  		if (socket.socket.connected === true) {
+		  			console.log('Reconnected ;)');
+		  			clearInterval(reconnect);
+		  			reconnect = null;
+		  			return;
+		  		}
+		  		console.log('Trying to reconnect');
+		  		socket.socket.reconnect();
+		  	}, 10000);
+		  });
+		  function pushKey(data) {
+		  	_already = true;
+		  	GameBoyKeyDown(data.key);
+		  	setTimeout(function () {
+		  		GameBoyKeyUp(data.key);
+		  		if (stack.length > 0)
+		  			pushKey(removeTopStack());
+		  		else
+		  			_already = false;
+		  	}, 50);
+		  }
+
+		  function addInputToUi(data) {
+		  	var newEl = document.createElement('li');
+		  	newEl.innerHTML = "<span class='name'>" + data.name + "</span><span class='input'>" + data.key + "</span>";
+		  	list.appendChild(newEl);
+		  }
+
+		  function addToStack(data) {
+		  	if (stack.length >= 10) {
+		  		stack.pop();
+		  		stack.push(data);
+				var li = list.getElementsByTagName('li')[9];
+				if (li)
+					list.removeChild(li);
+			} else {
+				stack.push(data);
+			}
+		  	addInputToUi(data);
+		  }
+
+		  function removeTopStack() {
+		  	var key = stack.shift();
+			var li = list.getElementsByTagName('li')[0];
+			if (li)
+				list.removeChild(li);
+		  	if (stack.length < 10)
+		  		return key;
+		  	addInputToUi(stack[9]);
+		  	return key;
+		  }
+		</script>
+        <script type="text/javascript">
+	    
+		 </script>
+        <!-- <script type="text/javascript" src="js/other/windowStack.js"></script>
+        <script type="text/javascript" src="js/other/terminal.js"></script>
+       	<script type="text/javascript" src="js/other/gui.js"></script> -->
+        <script type="text/javascript" src="js/other/base64.js"></script>
+        <script type="text/javascript" src="js/other/json2.js"></script>
+        <script type="text/javascript" src="js/other/swfobject.js"></script>
+        <script type="text/javascript" src="js/other/resampler.js"></script>
+        <script type="text/javascript" src="js/other/XAudioServer.js"></script>
+        <script type="text/javascript" src="js/other/resize.js"></script>
+        <script type="text/javascript" src="js/GameBoyCore.js"></script>
+        <script type="text/javascript" src="js/GameBoyIO.js"></script>
+        <title><%= title %></title>
+    </head>
+    <body>
+    	<canvas id="mainCanvas" width="800" height="600"></canvas>
+    	<div id="rightPanel">
+    		<h1><%= title %></h1>
+    		<ul id="inputStack">
+    		</ul>
+    	</div>
+    	<h1 style="text-align:center;">PLAY: <%= url %></h1>
+    	<h5 style="text-align: right; margin-right: 50px;">Made with <3 by <a href="http://twitter.com/DaFunix">DaFunix</a></h5>
+    </body>
+</html>
