@@ -1,7 +1,7 @@
 githubplaysgameboy
 ==================
 
-Multiplayer GameBoy emulator using HTML5, socket.io and node.js
+Multiplayer GameBoy emulator using HTML5, socket.io and node.js.
 You can host the server on Herokuapp easily (Procfile included) and it works pretty well !
 
 ![illustation](https://googledrive.com/host/0B71TAoXLSxy6VEVvRE4yN3JtRGs/bpgb.png)
@@ -30,8 +30,8 @@ Launch the server
 
 You are ready to go !
 
-For the "master", launch a browser with `[YOUR_URL]:[YOUR_PORT]/master` (default: http://127.0.0.1:3000/master)
-For a controller, launch a browser with `[YOUR_URL]:[YOUR_PORT]/` (default: http://127.0.0.1:3000)
+For the "master", launch a browser with `[YOUR_URL]:[YOUR_PORT]/master` (default: http://127.0.0.1:3000/master).
+For a controller, launch a browser with `[YOUR_URL]:[YOUR_PORT]/` (default: http://127.0.0.1:3000).
 
 Special thanks
 --------------
